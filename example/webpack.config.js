@@ -12,6 +12,8 @@ var devServerPort = 3808;
 // set TARGET=production on the environment to add asset fingerprints
 var production = process.env.TARGET === 'production';
 
+const loader = 'css?sourceMap&minimize!postcss!sass?sourceMap';
+
 var config = {
   entry: {
     // Sources are expected to live in $app_root/webpack
