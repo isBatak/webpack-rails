@@ -4,6 +4,7 @@
 var path = require('path');
 var webpack = require('webpack');
 var StatsPlugin = require('stats-webpack-plugin');
+const autoprefixer = require('autoprefixer');
 
 // must match config.webpack.dev_server.port
 var devServerPort = 3808;
@@ -29,7 +30,13 @@ var config = {
   },
 
   resolve: {
-    root: path.join(__dirname, '..', 'webpack')
+    root: [
+      path.join(__dirname, '..', 'webpack'),
+      path.join(__dirname, '..', 'app', 'assets', 'stylesheets')
+    ],
+    modulesDirectories: [
+      'node_modules'
+    ]
   },
 
   plugins: [
@@ -41,7 +48,14 @@ var config = {
       chunks: false,
       modules: false,
       assets: true
-    })]
+    })
+  ],
+
+  postcss: [
+    autoprefixer({
+      browsers: ['ie 10']
+    })
+  ]
 };
 
 if (production) {
@@ -58,13 +72,27 @@ if (production) {
     new webpack.optimize.OccurenceOrderPlugin()
   );
 } else {
+  config.plugins.push(
+    new webpack.HotModuleReplacementPlugin(),
+    new webpack.NoErrorsPlugin()
+  );
+
   config.devServer = {
     port: devServerPort,
-    headers: { 'Access-Control-Allow-Origin': '*' }
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    hot: true,
+    inline: true
   };
   config.output.publicPath = '//localhost:' + devServerPort + '/webpack/';
   // Source maps
   config.devtool = 'cheap-module-eval-source-map';
+
+  config.module = {
+    loaders: [{
+      test: /\.css|\.scss$/,
+      loader: 'style!' + loader
+    }]
+  }
 }
 
 module.exports = config;
